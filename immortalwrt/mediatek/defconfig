@@ -80,9 +80,6 @@ CONFIG_MODEMMANAGER_WITH_QMI=y
 CONFIG_MODEMMANAGER_WITH_QRTR=y
 CONFIG_PACKAGE_airoha-en8811h-firmware=y
 CONFIG_PACKAGE_alist=y
-CONFIG_PACKAGE_alsa-lib=y
-CONFIG_PACKAGE_alsa-ucm-conf=y
-CONFIG_PACKAGE_alsa-utils=y
 CONFIG_PACKAGE_aria2=y
 CONFIG_PACKAGE_ariang=y
 CONFIG_PACKAGE_attr=y
@@ -178,8 +175,6 @@ CONFIG_PACKAGE_kmod-fs-ntfs3=y
 CONFIG_PACKAGE_kmod-fs-vfat=y
 CONFIG_PACKAGE_kmod-fs-xfs=y
 CONFIG_PACKAGE_kmod-fuse=y
-CONFIG_PACKAGE_kmod-hid=y
-CONFIG_PACKAGE_kmod-hid-generic=y
 CONFIG_PACKAGE_kmod-ifb=y
 CONFIG_PACKAGE_kmod-ikconfig=y
 CONFIG_PACKAGE_kmod-inet-diag=y
@@ -266,6 +261,7 @@ CONFIG_PACKAGE_kmod-nfnetlink=y
 CONFIG_PACKAGE_kmod-nft-compat=y
 CONFIG_PACKAGE_kmod-nft-fib=y
 CONFIG_PACKAGE_kmod-nft-nat=y
+CONFIG_PACKAGE_kmod-nft-netdev=y
 CONFIG_PACKAGE_kmod-nft-offload=y
 CONFIG_PACKAGE_kmod-nf-ipvs=y
 CONFIG_PACKAGE_kmod-nf-nat6=y
@@ -274,6 +270,7 @@ CONFIG_PACKAGE_kmod-nf-tproxy=y
 CONFIG_PACKAGE_kmod-nft-compat=y
 CONFIG_PACKAGE_kmod-nft-socket=y
 CONFIG_PACKAGE_kmod-nft-tproxy=y
+CONFIG_PACKAGE_kmod-nft-queue=y
 CONFIG_PACKAGE_kmod-nls-cp437=y
 CONFIG_PACKAGE_kmod-nls-cp936=y
 CONFIG_PACKAGE_kmod-nls-cp950=y
@@ -326,8 +323,6 @@ CONFIG_PACKAGE_kmod-veth=y
 CONFIG_PACKAGE_kmod-vxlan=y
 CONFIG_PACKAGE_kmod-xfrm-interface=y
 CONFIG_PACKAGE_kmod-zram=y
-CONFIG_PACKAGE_lame-lib=y
-CONFIG_PACKAGE_libalac=y
 CONFIG_PACKAGE_libatomic=y
 CONFIG_PACKAGE_libattr=y
 CONFIG_PACKAGE_libavahi-client=y
@@ -360,7 +355,6 @@ CONFIG_PACKAGE_liblzo=y
 CONFIG_PACKAGE_libmbedtls=y
 CONFIG_PACKAGE_libmbim=y
 CONFIG_PACKAGE_libminiupnpc=y
-CONFIG_PACKAGE_libmosquitto-ssl=y
 CONFIG_PACKAGE_libmount=y
 CONFIG_PACKAGE_libnatpmp=y
 CONFIG_PACKAGE_libncurses=y
@@ -396,6 +390,12 @@ CONFIG_PACKAGE_lsblk=y
 CONFIG_PACKAGE_wrtbwmon=y
 CONFIG_PACKAGE_zram-swap=y
 
+## PPPoE Protocol
+CONFIG_PACKAGE_kmod-pppoe=y
+CONFIG_PACKAGE_luci-proto-ppp=y
+CONFIG_PACKAGE_ppp-mod-pppoe=y
+CONFIG_PACKAGE_ppp=y
+
 ## SFP Modules
 CONFIG_PACKAGE_kmod-phy-aquantia=y
 CONFIG_PACKAGE_kmod-phy-broadcom=y
@@ -409,6 +409,10 @@ CONFIG_PACKAGE_luci-proto-wireguard=y
 CONFIG_PACKAGE_qrencode=y
 CONFIG_PACKAGE_wireguard-tools=y
 
+## Dynamic routing protocols
+CONFIG_PACKAGE_bird2=y
+CONFIG_PACKAGE_bird2c=y
+
 ## IP Sets support for DNS and Firewall
 CONFIG_PACKAGE_dnsmasq-full=y
 CONFIG_PACKAGE_dnsmasq=n
@@ -416,12 +420,43 @@ CONFIG_PACKAGE_ipset=y
 CONFIG_PACKAGE_libnetfilter-conntrack3=y
 CONFIG_PACKAGE_libnettle8=y
 
+## LLDP Protocol
+CONFIG_PACKAGE_lldpd=y
+CONFIG_PACKAGE_luci-app-lldpd=y
+
+## Port knocking support
+CONFIG_PACKAGE_fwknopd=y
+CONFIG_PACKAGE_luci-app-fwknopd=y
+
+## Compression utilities
+CONFIG_PACKAGE_bzip2=y
+CONFIG_PACKAGE_gzip=y
+CONFIG_PACKAGE_xz=y
+CONFIG_PACKAGE_zstd=y
+
+## SSL and Cryptography Configuration
+CONFIG_LUA_ECO_MBEDTLS=y
+CONFIG_LUA_ECO_OPENSSL=n
+CONFIG_PACKAGE_apk-mbedtls=y
+CONFIG_PACKAGE_apk-openssl=n
+CONFIG_PACKAGE_libustream-mbedtls=y
+CONFIG_PACKAGE_libustream-openssl=n
+CONFIG_PACKAGE_luci-ssl-openssl=n
+CONFIG_PACKAGE_luci-ssl=y
+
+## External RPC scripting support
+CONFIG_PACKAGE_luci-mod-rpc=y
+CONFIG_PACKAGE_rpcd-mod-iwinfo=y
+CONFIG_PACKAGE_rpcd=y
+CONFIG_PACKAGE_uhttpd-mod-ubus=y
+
 ## Additional utilities
+CONFIG_PACKAGE_nano-full=y
+CONFIG_PACKAGE_speedtest-netperf=y
 CONFIG_PACKAGE_umdns=y
 
 # LuCI APP
 CONFIG_PACKAGE_luci-app-adguardhome=y
-CONFIG_PACKAGE_luci-app-airplay2=y
 CONFIG_PACKAGE_luci-app-alist=y
 CONFIG_PACKAGE_luci-app-argon-config=y
 CONFIG_PACKAGE_luci-app-aria2=y
