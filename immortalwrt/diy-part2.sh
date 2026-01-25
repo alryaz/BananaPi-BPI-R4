@@ -7,4 +7,4 @@ sed -i 's/192.168.1.1/192.168.2.1/g' \
 #
 # Fix rust build
 sed -i 's/llvm.download-ci-llvm=true/llvm.download-ci-llvm=false/g' \
-  packages/‎lang/rust/Makefile‎
+  feeds/packages/‎lang/rust/Makefile‎
