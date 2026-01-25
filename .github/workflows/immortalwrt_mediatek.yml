@@ -70,24 +70,20 @@ jobs:
         ./scripts/feeds install -a
 
     - name: Load feeds.conf.default
+      working-directory: ./openwrt
       run: |
-        chmod +x $OPENWRT_NAME/*.sh
-        cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
 
     - name: Load config
+      working-directory: ./openwrt
       run: |
-        [ -e "$CONFIG_FILE" ] && cat "$CONFIG_FILE" > openwrt/.config
-        chmod +x $OPENWRT_NAME/*.sh && cd openwrt
+        cat "$GITHUB_WORKSPACE/$CONFIG_FILE" > .config
         $GITHUB_WORKSPACE/$DIY_P2_SH
-
-    - name: Prepare default configuration
-      run: |
-        cd openwrt
         make defconfig
         cat .config
 
     - name: Download the installation package
+      working-directory: ./openwrt
       run: |
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
@@ -104,17 +100,20 @@ jobs:
 
     - name: Build the firmware image (multicore, unverbose)
       id: build_multiple_cores
-      run: cd openwrt && make world -j$(($(nproc)+1))
+      working-directory: ./openwrt
+      run: make world -j$(($(nproc)+1))
 
     - name: Build the firmware image (single core, unverbose)
       if: failure() && steps.build_multiple_cores.conclusion == 'failure'
       id: build_single_core
-      run: cd openwrt && make world -j1
+      working-directory: ./openwrt
+      run: make world -j1
 
     - name: Build the firmware image (single core, verbose)
       if: failure() && steps.build_single_core.conclusion == 'failure'
       id: pin_down_error
-      run: cd openwrt && make world V=sc -j1 | tee build_error.log
+      working-directory: ./openwrt
+      run: make world V=sc -j1 | tee build_error.log
 
     - name: Upload error log as artifact
       if: failure() && steps.pin_down_error.conclusion == 'failure'
