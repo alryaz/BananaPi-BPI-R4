@@ -56,15 +56,19 @@ jobs:
         $GITHUB_WORKSPACE/$OPENWRT_NAME/system-Information.sh
         
     - name: Download firmware source code
+      id: download_source
       run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        git clone --depth 1 "${REPO_URL}" -b "${REPO_BRANCH}" openwrt
+        cd openwrt
+        COMMIT_HASH=$(git rev-parse HEAD) #
+        echo "hash=$COMMIT_HASH" >> $GITHUB_OUTPUT #
 
     - name: Update & install feeds
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        
+
     - name: Load feeds.conf.default
       run: |
         chmod +x $OPENWRT_NAME/*.sh
@@ -77,15 +81,26 @@ jobs:
         chmod +x $OPENWRT_NAME/*.sh && cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    - name: Download the installation package
-      id: package
+    - name: Prepare default configuration
       run: |
         cd openwrt
         make defconfig
         cat .config
+
+    - name: Download the installation package
+      run: |
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+
+    - name: Cache ccache
+      uses: actions/cache@v4
+      with:
+        path: /builder/openwrt/.ccache
+        key: |
+          ${{ env.OPENWRT_NAME }}-${{ env.OPENWRT_DEVICE }}-${{ env.REPO_BRANCH }}-${{ steps.download_source.outputs.hash }}
+        restore-keys: |
+          ${{ env.OPENWRT_NAME }}-${{ env.OPENWRT_DEVICE }}-${{ env.REPO_BRANCH }}-
 
     - name: Build the firmware image (multicore, unverbose)
       id: build_multiple_cores
@@ -113,9 +128,9 @@ jobs:
       if: env.UPLOAD_FIRMWARE == 'true' || env.UPLOAD_RELEASE == 'true' 
       run: |
         cd openwrt/bin/targets/mediatek/filogic
-        rm -rf packages *mt798* *.config *.buildinfo *.json sha256sums 
+        rm -rf packages *mt798* *.buildinfo *.json
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        
+
     - name: Upload the firmware to github
       uses: actions/upload-artifact@main
       if: env.UPLOAD_FIRMWARE == 'true'
