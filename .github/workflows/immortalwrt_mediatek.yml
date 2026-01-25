@@ -113,14 +113,7 @@ jobs:
       if: failure() && steps.build_single_core.conclusion == 'failure'
       id: pin_down_error
       working-directory: ./openwrt
-      run: make world V=sc -j1 | tee build_error.log
-
-    - name: Upload error log as artifact
-      if: failure() && steps.pin_down_error.conclusion == 'failure'
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-error-{{ matrix.variation }}
-        path: openwrt/build_error.log
+      run: make world V=sc -j1
 
     - name: Organize and Rename Files
       id: organize
