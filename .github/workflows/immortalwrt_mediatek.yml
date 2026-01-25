@@ -86,49 +86,59 @@ jobs:
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-             
-    - name: Compile the firmware
-      id: compile
-      run: |
-        cd openwrt
-        echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 || make -j1 V=s
-        echo "date1=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
-        echo "date2=$(date "+Release %Y.%d")" >> $GITHUB_ENV
-        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Build the firmware image (multicore, unverbose)
+      id: build_multiple_cores
+      run: cd openwrt && make world -j$(($(nproc)+1))
+
+    - name: Build the firmware image (single core, unverbose)
+      if: failure() && steps.build_multiple_cores.conclusion == 'failure'
+      id: build_single_core
+      run: cd openwrt && make world -j1
+
+    - name: Build the firmware image (single core, verbose)
+      if: failure() && steps.build_single_core.conclusion == 'failure'
+      id: pin_down_error
+      run: cd openwrt && make world V=sc -j1 | tee build_error.log
+
+    - name: Upload error log as artifact
+      if: failure() && steps.pin_down_error.conclusion == 'failure'
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-error-{{ matrix.variation }}
+        path: openwrt/build_error.log
 
     - name: Organize and Rename Files
       id: organize
-      if: ${{ env.UPLOAD_FIRMWARE == 'true' && !cancelled() }}
+      if: env.UPLOAD_FIRMWARE == 'true' || env.UPLOAD_RELEASE == 'true' 
       run: |
         cd openwrt/bin/targets/mediatek/filogic
         rm -rf packages *mt798* *.config *.buildinfo *.json sha256sums 
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "status=success" >> $GITHUB_OUTPUT
         
     - name: Upload the firmware to github
       uses: actions/upload-artifact@main
-      if: steps.organize.outputs.status == 'success' && !cancelled()
+      if: env.UPLOAD_FIRMWARE == 'true'
       with:
-        name: ${{ env.date1 }}_${{ env.OPENWRT_NAME }}_${{ env.OPENWRT_DEVICE }}
+        name: ${{ env.OPENWRT_NAME }}_${{ env.OPENWRT_DEVICE }}
         path: ${{ env.FIRMWARE }}
 
     - name: Generate release tags
       id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: env.UPLOAD_RELEASE == 'true'
       run: |
-        echo "release_tag=${{ env.date2 }}" >> $GITHUB_OUTPUT
+        echo "release_name=$(date "+Release %Y.%d")" >> $GITHUB_OUTPUT
+        echo "release_tag=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
         touch release.txt
         echo "📥 Download Firmware" >> release.txt
-        echo "status=success" >> $GITHUB_OUTPUT
         
     - name: Publish to release
-      uses: softprops/action-gh-release@v1
-      if: steps.tag.outputs.status == 'success' && !cancelled()
+      uses: softprops/action-gh-release@v2
+      if: env.UPLOAD_RELEASE == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: ${{ env.FIRMWARE }}/*
-        name: ${{ env.date3 }}
+        name: ${{ steps.tag.outputs.release_name }}
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
